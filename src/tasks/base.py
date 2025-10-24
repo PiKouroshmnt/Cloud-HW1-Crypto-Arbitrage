@@ -3,6 +3,7 @@
 from typing import Optional
 
 from config.base import logger, settings
+from src.monitoring.metrics import metrics
 from toolkit.telegram import get_telegram_client
 
 from .nobitex import run_nobitex_trades_retrieval
@@ -42,6 +43,8 @@ def _check_and_send_arbitrage_alert(
         if profit_percentage >= threshold:
             logger.info(f"Arbitrage opportunity found for {currency}: {direction}")
 
+            metrics.record_arbitrage_opportunity(currency, direction, profit)
+
             telegram_client.send_message(
                 currency=f"{currency} ({direction})",
                 buy_price=buy_price,
@@ -60,6 +63,9 @@ def check_for_arbitrage_opportunities() -> None:
         if not nobitex_trades or not wallex_trades:
             logger.warning("Failed to retrieve trade data from one or both exchanges")
             return
+
+        metrics.update_latest_prices("nobitex", nobitex_trades)
+        metrics.update_latest_prices("wallex", wallex_trades)
 
         common_currencies = set(nobitex_trades.keys()) & set(wallex_trades.keys())
 
@@ -98,6 +104,8 @@ def check_for_arbitrage_opportunities() -> None:
                 threshold=threshold,
                 telegram_client=telegram_client,
             )
+
+        metrics.record_arbitrage_check()
 
         logger.info("Arbitrage check completed successfully")
 

@@ -5,6 +5,7 @@ from typing import Any
 import requests
 
 from config.base import CURRENCY_SYMBOLS, logger, settings
+from src.monitoring.ctx_manager import APITimer
 
 from .base import BaseClient
 
@@ -20,12 +21,14 @@ class NobitexClient(BaseClient):
         ]
         responses = {}
         for key, url in zip(CURRENCY_SYMBOLS, currency_urls):
-            try:
-                response = requests.get(url)
-                response.raise_for_status()
-                responses[key] = response.json()
-            except requests.RequestException as e:
-                logger.error(f"Error fetching {key} trades from nobitex: {e}")
+            with APITimer("nobitex", key) as timer:
+                try:
+                    response = requests.get(url)
+                    response.raise_for_status()
+                    responses[key] = response.json()
+                    timer.mark_success()
+                except requests.RequestException as e:
+                    logger.error(f"Error fetching {key} trades from nobitex: {e}")
         return responses
 
 

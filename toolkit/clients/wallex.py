@@ -5,6 +5,7 @@ from typing import Any
 import requests
 
 from config.base import CURRENCY_SYMBOLS, logger, settings
+from src.monitoring.ctx_manager import APITimer
 
 from .base import BaseClient
 
@@ -22,14 +23,16 @@ class WallexClient(BaseClient):
         responses = {}
         for key in CURRENCY_SYMBOLS:
             query_params = {"symbol": key}
-            try:
-                response = requests.get(
-                    self.base_url, headers=headers, params=query_params
-                )
-                response.raise_for_status()
-                responses[key] = response.json()
-            except requests.RequestException as e:
-                logger.error(f"Error fetching {key} trades from wallex: {e}")
+            with APITimer("wallex", key) as timer:
+                try:
+                    response = requests.get(
+                        self.base_url, headers=headers, params=query_params
+                    )
+                    response.raise_for_status()
+                    responses[key] = response.json()
+                    timer.mark_success()
+                except requests.RequestException as e:
+                    logger.error(f"Error fetching {key} trades from wallex: {e}")
         return responses
 
 
