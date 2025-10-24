@@ -1,0 +1,71 @@
+[tool.poetry]
+name = "auto_arbitrage_checker"
+version = "0.1.0"
+description = "Kourosh's Auto Arbitrage Checker"
+authors = ["kouroshmontazeri <picorog83@gmail.com>"]
+readme = "README.md"
+package-mode=false
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = {version = "^0.115.6", extras = ["standard"]}
+requests = "^2.32.3"
+pydantic = "^2.12.3"
+pydantic-settings = "^2.11.0"
+httpx = "^0.28.1"
+loguru = "^0.7.3"
+apscheduler = "^3.11.0"
+prometheus-client = "^0.21.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.3"
+isort = "^5.13.2"
+mypy = "^1.13.0"
+pre-commit = "^4.0.1"
+types-requests = "^2.32.4.20250809"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+line-length = 88
+lint.select = [
+    "E",  # pycodestyle
+    "W",  # pycodestyle
+    "F",  # pyflakes
+    "UP",  # pyupgrade
+    "C90",  # mccabe
+    "D",  # pydocstyle
+    "I",  # isort
+    "RUF",  # Ruff specific rules
+]
+lint.ignore = ["D104"]
+lint.exclude = ["*/alembic/*"]
+
+lint.fixable = [
+    "F401",  # Remove unused imports.
+    "RUF100",  # Remove unused noqa comments.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/__init__.py" = ["F401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+
+plugins = ["pydantic.mypy"]
