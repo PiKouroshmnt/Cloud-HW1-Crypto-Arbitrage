@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "auto_arbitrage_checker"
-version = "0.1.0"
+version = "0.1.1"
 description = "Kourosh's Auto Arbitrage Checker"
 authors = ["kouroshmontazeri <picorog83@gmail.com>"]
 readme = "README.md"
